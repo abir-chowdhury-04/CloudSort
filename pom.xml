@@ -60,7 +60,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                com.abir_2307055.cloudsort.cloudsort/com.abir_2307055.cloudsort.cloudsort.HelloApplication
+                                com.abir_2307055.cloudsort.cloudsort/com.abir_2307055.cloudsort.cloudsort.CloudSortApplication
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>

@@ -3,7 +3,7 @@ package com.abir_2307055.cloudsort.cloudsort;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
-public class HelloController {
+public class DashboardController {
     @FXML
     private Label welcomeText;
 
