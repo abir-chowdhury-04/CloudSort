@@ -1,6 +1,7 @@
 package com.abir_2307055.cloudsort.cloudsort;
 
 import com.abir_2307055.cloudsort.cloudsort.model.FileItem;
+import com.abir_2307055.cloudsort.cloudsort.service.Categorizer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -27,14 +28,24 @@ public class DashboardController {
     @FXML
     private TableColumn<FileItem, String> extensionColumn;
 
+    @FXML
+    private TableColumn<FileItem, String> categoryColumn;
+
+    @FXML
+    private TableColumn<FileItem, String> reasonColumn;
+
     private File selectedFolder;
 
     private final ObservableList<FileItem> fileItems = FXCollections.observableArrayList();
+
+    private final Categorizer categorizer = Categorizer.withDefaultRules();
 
     @FXML
     public void initialize() {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         extensionColumn.setCellValueFactory(new PropertyValueFactory<>("extension"));
+        categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
+        reasonColumn.setCellValueFactory(new PropertyValueFactory<>("reason"));
         fileTableView.setItems(fileItems);
     }
 
@@ -75,7 +86,11 @@ public class DashboardController {
             if (dotIndex > 0) {
                 extension = name.substring(dotIndex + 1);
             }
-            fileItems.add(new FileItem(name, extension));
+
+            String category = categorizer.getCategory(extension);
+            String reason = categorizer.getReason(extension);
+
+            fileItems.add(new FileItem(name, extension, category, reason));
         }
     }
 }

@@ -17,10 +17,12 @@
     <Button text="Select Folder" onAction="#onSelectFolderClicked"/>
     <Button text="Scan" onAction="#onScanClicked"/>
 
-    <TableView fx:id="fileTableView" prefHeight="250.0" prefWidth="500.0">
+    <TableView fx:id="fileTableView" prefHeight="250.0" prefWidth="700.0">
         <columns>
-            <TableColumn fx:id="nameColumn" text="File Name" prefWidth="300.0"/>
-            <TableColumn fx:id="extensionColumn" text="Extension" prefWidth="150.0"/>
+            <TableColumn fx:id="nameColumn" text="File Name" prefWidth="180.0"/>
+            <TableColumn fx:id="extensionColumn" text="Extension" prefWidth="90.0"/>
+            <TableColumn fx:id="categoryColumn" text="Category" prefWidth="120.0"/>
+            <TableColumn fx:id="reasonColumn" text="Reason" prefWidth="300.0"/>
         </columns>
     </TableView>
 </VBox>
