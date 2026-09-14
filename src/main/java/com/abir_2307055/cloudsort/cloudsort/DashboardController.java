@@ -11,6 +11,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
+import javafx.concurrent.Task;
 
 import java.io.File;
 
@@ -65,32 +66,51 @@ public class DashboardController {
 
     @FXML
     protected void onScanClicked() {
-        fileItems.clear();
-
         if (selectedFolder == null) {
             folderPathLabel.setText("Please select a folder first");
             return;
         }
 
-        File[] files = selectedFolder.listFiles(File::isFile);
+        fileItems.clear();
 
-        if (files == null) {
-            folderPathLabel.setText("Could not read folder: " + selectedFolder.getAbsolutePath());
-            return;
-        }
+        Task<ObservableList<FileItem>> scanTask = new Task<>() {
+            @Override
+            protected ObservableList<FileItem> call() {
+                ObservableList<FileItem> scannedItems = FXCollections.observableArrayList();
 
-        for (File file : files) {
-            String name = file.getName();
-            String extension = "";
-            int dotIndex = name.lastIndexOf('.');
-            if (dotIndex > 0) {
-                extension = name.substring(dotIndex + 1);
+                File[] files = selectedFolder.listFiles(File::isFile);
+                if (files == null) {
+                    return scannedItems;
+                }
+
+                for (File file : files) {
+                    String name = file.getName();
+                    String extension = "";
+                    int dotIndex = name.lastIndexOf('.');
+                    if (dotIndex > 0) {
+                        extension = name.substring(dotIndex + 1);
+                    }
+
+                    String category = categorizer.getCategory(extension);
+                    String reason = categorizer.getReason(extension);
+
+                    scannedItems.add(new FileItem(name, extension, category, reason));
+                }
+
+                return scannedItems;
             }
+        };
 
-            String category = categorizer.getCategory(extension);
-            String reason = categorizer.getReason(extension);
+        scanTask.setOnSucceeded(event -> {
+            fileItems.setAll(scanTask.getValue());
+        });
 
-            fileItems.add(new FileItem(name, extension, category, reason));
-        }
+        scanTask.setOnFailed(event -> {
+            folderPathLabel.setText("Scan failed: " + scanTask.getException().getMessage());
+        });
+
+        Thread backgroundThread = new Thread(scanTask);
+        backgroundThread.setDaemon(true);
+        backgroundThread.start();
     }
 }
