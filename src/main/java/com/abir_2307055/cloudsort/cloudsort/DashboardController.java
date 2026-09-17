@@ -147,6 +147,19 @@ public class DashboardController {
         backgroundThread.start();
     }
 
+    private boolean allFilesShareOneCategory(ObservableList<FileItem> items) {
+        if (items.isEmpty()) {
+            return false;
+        }
+        String firstCategory = items.get(0).getCategory();
+        for (FileItem item : items) {
+            if (!item.getCategory().equals(firstCategory)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @FXML
     protected void onOrganizeClicked() {
         if (fileItems.isEmpty()) {
@@ -175,6 +188,24 @@ public class DashboardController {
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isEmpty() || result.get() != ButtonType.OK) {
             return;
+        }
+
+        if (allFilesShareOneCategory(fileItems)) {
+            String onlyCategory = fileItems.get(0).getCategory();
+
+            Alert warnAlert = new Alert(Alert.AlertType.WARNING);
+            warnAlert.setTitle("Possible Duplicate Organizing");
+            warnAlert.setHeaderText(null);
+            warnAlert.setContentText("All files in this folder already belong to one category ("
+                    + onlyCategory + "). This folder may already be sorted.\n\n"
+                    + "Proceed anyway?");
+            warnAlert.getButtonTypes().setAll(ButtonType.YES, ButtonType.CANCEL);
+            warnAlert.getDialogPane().setMinHeight(180);
+
+            Optional<ButtonType> warnResult = warnAlert.showAndWait();
+            if (warnResult.isEmpty() || warnResult.get() != ButtonType.YES) {
+                return;
+            }
         }
 
         organizeButton.setDisable(true);

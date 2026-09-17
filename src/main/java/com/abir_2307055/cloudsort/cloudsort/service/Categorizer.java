@@ -34,4 +34,8 @@ public class Categorizer {
         }
         return "No matching rule - defaulted to Other";
     }
+
+    public java.util.Set<String> getKnownCategories() {
+        return new java.util.HashSet<>(extensionToCategory.values());
+    }
 }
