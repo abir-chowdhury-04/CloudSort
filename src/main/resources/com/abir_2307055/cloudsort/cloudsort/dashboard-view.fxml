@@ -30,6 +30,7 @@
     <Label fx:id="destinationLabel" text="Destination: same as source folder"/>
     <HBox alignment="CENTER" spacing="10.0">
         <Button text="Select Destination Folder (optional)" onAction="#onSelectDestinationClicked"/>
+        <Button text="Reset Destination" onAction="#onResetDestinationClicked"/>
         <Button fx:id="organizeButton" text="Organize" onAction="#onOrganizeClicked" disable="true"/>
     </HBox>
 </VBox>

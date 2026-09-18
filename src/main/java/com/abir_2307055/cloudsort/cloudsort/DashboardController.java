@@ -98,6 +98,12 @@ public class DashboardController {
     }
 
     @FXML
+    protected void onResetDestinationClicked() {
+        destinationFolder = null;
+        destinationLabel.setText("Destination: same as source folder");
+    }
+
+    @FXML
     protected void onScanClicked() {
         if (operationInProgress) {
             return;
@@ -193,6 +199,12 @@ public class DashboardController {
         return renamedCandidate;
     }
 
+    private boolean isSameOrNestedPath(File folderA, File folderB) {
+        Path pathA = folderA.toPath().toAbsolutePath().normalize();
+        Path pathB = folderB.toPath().toAbsolutePath().normalize();
+        return pathA.equals(pathB) || pathA.startsWith(pathB) || pathB.startsWith(pathA);
+    }
+
     @FXML
     protected void onOrganizeClicked() {
         if (operationInProgress) {
@@ -203,6 +215,16 @@ public class DashboardController {
         }
 
         File targetRoot = (destinationFolder != null) ? destinationFolder : selectedFolder;
+
+        if (destinationFolder != null && isSameOrNestedPath(selectedFolder, destinationFolder)) {
+            Alert overlapAlert = new Alert(Alert.AlertType.ERROR);
+            overlapAlert.setTitle("Invalid Destination");
+            overlapAlert.setHeaderText(null);
+            overlapAlert.setContentText("The destination folder cannot be the same as, or inside/containing, "
+                    + "the source folder. Please choose a different destination.");
+            overlapAlert.showAndWait();
+            return;
+        }
 
         Map<String, Integer> countPerCategory = new HashMap<>();
         for (FileItem item : fileItems) {
