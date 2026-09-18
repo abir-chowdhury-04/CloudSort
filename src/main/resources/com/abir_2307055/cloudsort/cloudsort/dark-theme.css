@@ -26,3 +26,19 @@
 .table-view .column-header .label {
     -fx-text-fill: #e0e0e0;
 }
+
+.category-documents {
+    -fx-background-color: #2f4a6b;
+}
+
+.category-images {
+    -fx-background-color: #2f5c3a;
+}
+
+.category-other {
+    -fx-background-color: #3a3a3a;
+}
+
+.table-view .table-cell {
+    -fx-text-fill: #e0e0e0;
+}

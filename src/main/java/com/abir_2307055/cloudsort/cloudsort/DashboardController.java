@@ -72,6 +72,24 @@ public class DashboardController {
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
         reasonColumn.setCellValueFactory(new PropertyValueFactory<>("reason"));
         fileTableView.setItems(fileItems);
+        fileTableView.setRowFactory(tableView -> new javafx.scene.control.TableRow<FileItem>() {
+            @Override
+            protected void updateItem(FileItem item, boolean empty) {
+                super.updateItem(item, empty);
+
+                getStyleClass().removeAll("category-documents", "category-images", "category-other");
+
+                if (empty || item == null) {
+                    return;
+                }
+
+                switch (item.getCategory()) {
+                    case "Documents" -> getStyleClass().add("category-documents");
+                    case "Images" -> getStyleClass().add("category-images");
+                    default -> getStyleClass().add("category-other");
+                }
+            }
+        });
     }
 
     public void setInitialDarkModeState(boolean darkModeEnabled) {

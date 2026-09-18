@@ -18,3 +18,15 @@
 .table-view {
     -fx-background-color: #ffffff;
 }
+
+.category-documents {
+    -fx-background-color: #dbe9ff;
+}
+
+.category-images {
+    -fx-background-color: #dcf7dc;
+}
+
+.category-other {
+    -fx-background-color: #f5f5f5;
+}
