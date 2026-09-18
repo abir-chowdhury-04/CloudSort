@@ -160,6 +160,31 @@ public class DashboardController {
         return true;
     }
 
+    private Path resolveNonConflictingPath(Path categoryFolder, String originalName) {
+        Path candidate = categoryFolder.resolve(originalName);
+        if (!Files.exists(candidate)) {
+            return candidate;
+        }
+
+        String baseName = originalName;
+        String extension = "";
+        int dotIndex = originalName.lastIndexOf('.');
+        if (dotIndex > 0) {
+            baseName = originalName.substring(0, dotIndex);
+            extension = originalName.substring(dotIndex);
+        }
+
+        int counter = 1;
+        Path renamedCandidate;
+        do {
+            String newName = baseName + " (" + counter + ")" + extension;
+            renamedCandidate = categoryFolder.resolve(newName);
+            counter++;
+        } while (Files.exists(renamedCandidate));
+
+        return renamedCandidate;
+    }
+
     @FXML
     protected void onOrganizeClicked() {
         if (fileItems.isEmpty()) {
@@ -221,9 +246,9 @@ public class DashboardController {
                         Path sourcePath = new File(selectedFolder, item.getName()).toPath();
                         Path categoryFolder = new File(targetRoot, item.getCategory()).toPath();
                         Files.createDirectories(categoryFolder);
-                        Path destinationPath = categoryFolder.resolve(item.getName());
+                        Path destinationPath = resolveNonConflictingPath(categoryFolder, item.getName());
 
-                        Files.move(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+                        Files.move(sourcePath, destinationPath);
                         successCount++;
                     } catch (Exception e) {
                         failureCount++;
