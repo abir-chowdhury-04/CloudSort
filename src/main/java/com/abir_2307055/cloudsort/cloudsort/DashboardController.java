@@ -21,6 +21,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import javafx.scene.Scene;
+import com.abir_2307055.cloudsort.cloudsort.service.SettingsManager;
 
 import java.io.File;
 
@@ -59,6 +61,10 @@ public class DashboardController {
 
     private boolean operationInProgress = false;
 
+    private boolean darkModeEnabled = false;
+
+    private final SettingsManager settingsManager = new SettingsManager();
+
     @FXML
     public void initialize() {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -66,6 +72,25 @@ public class DashboardController {
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
         reasonColumn.setCellValueFactory(new PropertyValueFactory<>("reason"));
         fileTableView.setItems(fileItems);
+    }
+
+    public void setInitialDarkModeState(boolean darkModeEnabled) {
+        this.darkModeEnabled = darkModeEnabled;
+    }
+
+    @FXML
+    protected void onToggleThemeClicked(javafx.event.ActionEvent event) {
+        Scene scene = ((javafx.scene.Node) event.getSource()).getScene();
+        scene.getStylesheets().clear();
+
+        if (darkModeEnabled) {
+            scene.getStylesheets().add(getClass().getResource("light-theme.css").toExternalForm());
+        } else {
+            scene.getStylesheets().add(getClass().getResource("dark-theme.css").toExternalForm());
+        }
+
+        darkModeEnabled = !darkModeEnabled;
+        settingsManager.saveDarkModePreference(darkModeEnabled);
     }
 
     @FXML

@@ -14,6 +14,7 @@
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
     </padding>
 
+    <Button text="Toggle Dark Mode" onAction="#onToggleThemeClicked"/>
     <Label fx:id="folderPathLabel" text="No folder selected"/>
     <Button text="Select Folder" onAction="#onSelectFolderClicked"/>
     <Button text="Scan" onAction="#onScanClicked"/>
