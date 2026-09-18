@@ -57,6 +57,8 @@ public class DashboardController {
 
     private final Categorizer categorizer = Categorizer.withDefaultRules();
 
+    private boolean operationInProgress = false;
+
     @FXML
     public void initialize() {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -97,6 +99,9 @@ public class DashboardController {
 
     @FXML
     protected void onScanClicked() {
+        if (operationInProgress) {
+            return;
+        }
         if (selectedFolder == null) {
             folderPathLabel.setText("Please select a folder first");
             return;
@@ -104,6 +109,7 @@ public class DashboardController {
 
         fileItems.clear();
         organizeButton.setDisable(true);
+        operationInProgress = true;
 
         Task<ObservableList<FileItem>> scanTask = new Task<>() {
             @Override
@@ -136,10 +142,12 @@ public class DashboardController {
         scanTask.setOnSucceeded(event -> {
             fileItems.setAll(scanTask.getValue());
             organizeButton.setDisable(fileItems.isEmpty());
+            operationInProgress = false;
         });
 
         scanTask.setOnFailed(event -> {
             folderPathLabel.setText("Scan failed: " + scanTask.getException().getMessage());
+            operationInProgress = false;
         });
 
         Thread backgroundThread = new Thread(scanTask);
@@ -187,6 +195,9 @@ public class DashboardController {
 
     @FXML
     protected void onOrganizeClicked() {
+        if (operationInProgress) {
+            return;
+        }
         if (fileItems.isEmpty()) {
             return;
         }
@@ -233,6 +244,7 @@ public class DashboardController {
             }
         }
 
+        operationInProgress = true;
         organizeButton.setDisable(true);
 
         Task<int[]> moveTask = new Task<>() {
@@ -270,11 +282,13 @@ public class DashboardController {
 
             fileItems.clear();
             organizeButton.setDisable(true);
+            operationInProgress = false;
         });
 
         moveTask.setOnFailed(event -> {
             organizeButton.setDisable(false);
             folderPathLabel.setText("Organize failed: " + moveTask.getException().getMessage());
+            operationInProgress = false;
         });
 
         Thread backgroundThread = new Thread(moveTask);
