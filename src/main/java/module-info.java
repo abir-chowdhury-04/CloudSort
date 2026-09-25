@@ -1,6 +1,7 @@
 module com.abir_2307055.cloudsort.cloudsort {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.sql;
 
     opens com.abir_2307055.cloudsort.cloudsort to javafx.fxml;
     opens com.abir_2307055.cloudsort.cloudsort.model to javafx.base;

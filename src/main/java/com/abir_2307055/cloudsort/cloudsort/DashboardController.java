@@ -21,6 +21,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import com.abir_2307055.cloudsort.cloudsort.repository.MoveHistoryDAO;
+import java.sql.SQLException;
 
 import java.io.File;
 
@@ -58,6 +60,8 @@ public class DashboardController {
     private final Categorizer categorizer = Categorizer.withDefaultRules();
 
     private boolean operationInProgress = false;
+
+    private final MoveHistoryDAO moveHistoryDAO = new MoveHistoryDAO();
 
     @FXML
     public void initialize() {
@@ -276,14 +280,44 @@ public class DashboardController {
                 int failureCount = 0;
 
                 for (FileItem item : fileItems) {
+                    Path sourcePath = new File(selectedFolder, item.getName()).toPath();
+                    Path categoryFolder = new File(targetRoot, item.getCategory()).toPath();
+                    String originalPathText = sourcePath.toString();
+                    String newPathText;
+
                     try {
-                        Path sourcePath = new File(selectedFolder, item.getName()).toPath();
-                        Path categoryFolder = new File(targetRoot, item.getCategory()).toPath();
                         Files.createDirectories(categoryFolder);
                         Path destinationPath = resolveNonConflictingPath(categoryFolder, item.getName());
+                        newPathText = destinationPath.toString();
+
+                        final long[] insertedId = {-1};
+                        Thread insertThread = new Thread(() -> {
+                            try {
+                                insertedId[0] = moveHistoryDAO.insertMove(originalPathText, newPathText, item.getCategory());
+                            } catch (SQLException e) {
+                                System.err.println("Failed to log move: " + e.getMessage());
+                            }
+                        });
+                        insertThread.setDaemon(true);
+                        insertThread.start();
+                        insertThread.join();
 
                         Files.move(sourcePath, destinationPath);
                         successCount++;
+
+                        Thread updateThread = new Thread(() -> {
+                            try {
+                                if (insertedId[0] != -1) {
+                                    moveHistoryDAO.updateStatus(insertedId[0], "moved");
+                                }
+                            } catch (SQLException e) {
+                                System.err.println("Failed to update move status: " + e.getMessage());
+                            }
+                        });
+                        updateThread.setDaemon(true);
+                        updateThread.start();
+                        updateThread.join();
+
                     } catch (Exception e) {
                         failureCount++;
                     }
