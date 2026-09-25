@@ -285,6 +285,8 @@ public class DashboardController {
         confirmAlert.setTitle("Confirm Organize");
         confirmAlert.setHeaderText("Move files now?");
         confirmAlert.setContentText(summary.toString());
+        confirmAlert.getDialogPane().setMinHeight(javafx.scene.layout.Region.USE_PREF_SIZE);
+        confirmAlert.setResizable(true);
 
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isEmpty() || result.get() != ButtonType.OK) {
@@ -301,7 +303,8 @@ public class DashboardController {
                     + onlyCategory + "). This folder may already be sorted.\n\n"
                     + "Proceed anyway?");
             warnAlert.getButtonTypes().setAll(ButtonType.YES, ButtonType.CANCEL);
-            warnAlert.getDialogPane().setMinHeight(180);
+            warnAlert.getDialogPane().setMinHeight(javafx.scene.layout.Region.USE_PREF_SIZE);
+            warnAlert.setResizable(true);
 
             Optional<ButtonType> warnResult = warnAlert.showAndWait();
             if (warnResult.isEmpty() || warnResult.get() != ButtonType.YES) {
