@@ -9,16 +9,17 @@ import com.abir_2307055.cloudsort.cloudsort.model.MoveRecord;
 public class MoveHistoryDAO {
 
     // CREATE
-    public long insertMove(String originalPath, String newPath, String category) throws SQLException {
-        String sql = "INSERT INTO move_history(original_path, new_path, category, moved_at, status) "
-                + "VALUES(?, ?, ?, ?, ?)";
+    public long insertMove(long sessionId, String originalPath, String newPath, String category) throws SQLException {
+        String sql = "INSERT INTO move_history(session_id, original_path, new_path, category, moved_at, status) "
+                + "VALUES(?, ?, ?, ?, ?, ?)";
         try (Connection conn = Database.connect();
              PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, originalPath);
-            ps.setString(2, newPath);
-            ps.setString(3, category);
-            ps.setString(4, LocalDateTime.now().toString());
-            ps.setString(5, "pending");
+            ps.setLong(1, sessionId);
+            ps.setString(2, originalPath);
+            ps.setString(3, newPath);
+            ps.setString(4, category);
+            ps.setString(5, LocalDateTime.now().toString());
+            ps.setString(6, "pending");
             ps.executeUpdate();
 
             try (ResultSet keys = ps.getGeneratedKeys()) {
@@ -32,7 +33,7 @@ public class MoveHistoryDAO {
 
     // READ
     public List<MoveRecord> getAllMoves() throws SQLException {
-        String sql = "SELECT id, original_path, new_path, category, moved_at, status "
+        String sql = "SELECT id, session_id, original_path, new_path, category, moved_at, status "
                 + "FROM move_history ORDER BY moved_at DESC";
         List<MoveRecord> records = new ArrayList<>();
 
@@ -42,6 +43,7 @@ public class MoveHistoryDAO {
             while (rs.next()) {
                 records.add(new MoveRecord(
                         rs.getLong("id"),
+                        rs.getLong("session_id"),
                         rs.getString("original_path"),
                         rs.getString("new_path"),
                         rs.getString("category"),

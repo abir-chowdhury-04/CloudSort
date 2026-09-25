@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import com.abir_2307055.cloudsort.cloudsort.repository.MoveHistoryDAO;
 import java.sql.SQLException;
+import com.abir_2307055.cloudsort.cloudsort.repository.SessionDAO;
 
 import java.io.File;
 
@@ -62,6 +63,7 @@ public class DashboardController {
     private boolean operationInProgress = false;
 
     private final MoveHistoryDAO moveHistoryDAO = new MoveHistoryDAO();
+    private final SessionDAO sessionDAO = new SessionDAO();
 
     @FXML
     public void initialize() {
@@ -279,6 +281,13 @@ public class DashboardController {
                 int successCount = 0;
                 int failureCount = 0;
 
+                long sessionId;
+                try {
+                    sessionId = sessionDAO.insertSession(selectedFolder.getAbsolutePath(), targetRoot.getAbsolutePath());
+                } catch (SQLException e) {
+                    sessionId = -1;
+                }
+
                 for (FileItem item : fileItems) {
                     Path sourcePath = new File(selectedFolder, item.getName()).toPath();
                     Path categoryFolder = new File(targetRoot, item.getCategory()).toPath();
@@ -290,10 +299,11 @@ public class DashboardController {
                         Path destinationPath = resolveNonConflictingPath(categoryFolder, item.getName());
                         newPathText = destinationPath.toString();
 
+                        final long finalSessionId = sessionId;
                         final long[] insertedId = {-1};
                         Thread insertThread = new Thread(() -> {
                             try {
-                                insertedId[0] = moveHistoryDAO.insertMove(originalPathText, newPathText, item.getCategory());
+                                insertedId[0] = moveHistoryDAO.insertMove(finalSessionId, originalPathText, newPathText, item.getCategory());
                             } catch (SQLException e) {
                                 System.err.println("Failed to log move: " + e.getMessage());
                             }
