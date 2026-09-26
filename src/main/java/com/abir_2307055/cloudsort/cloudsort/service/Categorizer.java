@@ -1,25 +1,17 @@
 package com.abir_2307055.cloudsort.cloudsort.service;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class Categorizer {
 
     private final Map<String, String> extensionToCategory;
 
-    public Categorizer(Map<String, String> extensionToCategory) {
-        this.extensionToCategory = extensionToCategory;
+    public Categorizer(RuleSource ruleSource) {
+        this.extensionToCategory = ruleSource.loadRules();
     }
 
     public static Categorizer withDefaultRules() {
-        Map<String, String> defaultRules = new HashMap<>();
-        defaultRules.put("pdf", "Documents");
-        defaultRules.put("docx", "Documents");
-        defaultRules.put("txt", "Documents");
-        defaultRules.put("jpg", "Images");
-        defaultRules.put("jpeg", "Images");
-        defaultRules.put("png", "Images");
-        return new Categorizer(defaultRules);
+        return new Categorizer(new HardcodedRuleSource());
     }
 
     public String getCategory(String extension) {
@@ -33,9 +25,5 @@ public class Categorizer {
             return "Matched ." + lowerExtension + " rule";
         }
         return "No matching rule - defaulted to Other";
-    }
-
-    public java.util.Set<String> getKnownCategories() {
-        return new java.util.HashSet<>(extensionToCategory.values());
     }
 }
