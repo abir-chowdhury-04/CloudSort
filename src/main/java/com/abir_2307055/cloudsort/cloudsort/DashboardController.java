@@ -27,6 +27,8 @@ import javafx.scene.Scene;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import java.io.File;
 
@@ -67,6 +69,8 @@ public class DashboardController {
 
     private final MoveHistoryDAO moveHistoryDAO = new MoveHistoryDAO();
     private final SessionDAO sessionDAO = new SessionDAO();
+
+    private final ExecutorService executorService = Executors.newFixedThreadPool(4);
 
     @FXML
     public void initialize() {
@@ -165,9 +169,7 @@ public class DashboardController {
             operationInProgress = false;
         });
 
-        Thread backgroundThread = new Thread(scanTask);
-        backgroundThread.setDaemon(true);
-        backgroundThread.start();
+        executorService.submit(scanTask);
     }
 
     private boolean allFilesShareOneCategory(ObservableList<FileItem> items) {
@@ -399,8 +401,10 @@ public class DashboardController {
             operationInProgress = false;
         });
 
-        Thread backgroundThread = new Thread(moveTask);
-        backgroundThread.setDaemon(true);
-        backgroundThread.start();
+        executorService.submit(moveTask);
+    }
+
+    public void shutdownExecutor() {
+        executorService.shutdown();
     }
 }

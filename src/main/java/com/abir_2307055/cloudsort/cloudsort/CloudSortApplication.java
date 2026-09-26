@@ -9,6 +9,9 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class CloudSortApplication extends Application {
+
+    private DashboardController controller;
+
     @Override
     public void start(Stage stage) throws IOException {
         Database.initializeDatabase();
@@ -18,5 +21,14 @@ public class CloudSortApplication extends Application {
         stage.setTitle("CloudSort");
         stage.setScene(scene);
         stage.show();
+
+        controller = fxmlLoader.getController();
+    }
+
+    @Override
+    public void stop() {
+        if (controller != null) {
+            controller.shutdownExecutor();
+        }
     }
 }
