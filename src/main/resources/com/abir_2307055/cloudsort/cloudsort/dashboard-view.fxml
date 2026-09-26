@@ -32,5 +32,6 @@
         <Button text="Select Destination Folder (optional)" onAction="#onSelectDestinationClicked"/>
         <Button text="Reset Destination" onAction="#onResetDestinationClicked"/>
         <Button fx:id="organizeButton" text="Organize" onAction="#onOrganizeClicked" disable="true"/>
+        <Button text="View History" onAction="#onViewHistoryClicked"/>
     </HBox>
 </VBox>

@@ -17,13 +17,16 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import com.abir_2307055.cloudsort.cloudsort.repository.MoveHistoryDAO;
 import java.sql.SQLException;
 import com.abir_2307055.cloudsort.cloudsort.repository.SessionDAO;
+import javafx.scene.Scene;
+import javafx.fxml.FXMLLoader;
+import javafx.stage.Stage;
+import java.io.IOException;
 
 import java.io.File;
 
@@ -212,6 +215,25 @@ public class DashboardController {
     }
 
     @FXML
+    protected void onViewHistoryClicked() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("history-view.fxml"));
+            Scene historyScene = new Scene(loader.load(), 700, 400);
+
+            Stage historyStage = new Stage();
+            historyStage.setTitle("Move History");
+            historyStage.setScene(historyScene);
+            historyStage.show();
+        } catch (IOException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not open history window: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
     protected void onOrganizeClicked() {
         if (operationInProgress) {
             return;
@@ -294,13 +316,14 @@ public class DashboardController {
                     String originalPathText = sourcePath.toString();
                     String newPathText;
 
+                    final long finalSessionId = sessionId;
+                    final long[] insertedId = {-1};
+
                     try {
                         Files.createDirectories(categoryFolder);
                         Path destinationPath = resolveNonConflictingPath(categoryFolder, item.getName());
                         newPathText = destinationPath.toString();
 
-                        final long finalSessionId = sessionId;
-                        final long[] insertedId = {-1};
                         Thread insertThread = new Thread(() -> {
                             try {
                                 insertedId[0] = moveHistoryDAO.insertMove(finalSessionId, originalPathText, newPathText, item.getCategory());
@@ -330,6 +353,25 @@ public class DashboardController {
 
                     } catch (Exception e) {
                         failureCount++;
+                        if (insertedId[0] != -1) {
+                            Thread failThread = new Thread(() -> {
+                                try {
+                                    moveHistoryDAO.updateStatus(insertedId[0], "failed");
+                                } catch (SQLException ex) {
+                                    System.err.println("Failed to update failure status: " + ex.getMessage());
+                                }
+                            });
+                            failThread.setDaemon(true);
+                            failThread.start();
+                            try {
+                                failThread.join();
+                            } catch (InterruptedException ie) {
+                                Thread.currentThread().interrupt();
+                            }
+                        }
+                        if (e instanceof InterruptedException) {
+                            Thread.currentThread().interrupt();
+                        }
                     }
                 }
 

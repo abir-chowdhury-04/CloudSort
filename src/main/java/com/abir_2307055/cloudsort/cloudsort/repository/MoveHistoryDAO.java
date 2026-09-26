@@ -55,6 +55,36 @@ public class MoveHistoryDAO {
         return records;
     }
 
+    //QUERY
+    public List<MoveRecord> getAllMovesWithSessionInfo() throws SQLException {
+        String sql = """
+            SELECT mh.id, mh.session_id, mh.original_path, mh.new_path,
+                   mh.category, mh.moved_at, mh.status,
+                   s.source_folder, s.destination_folder
+            FROM move_history mh
+            JOIN sessions s ON mh.session_id = s.id
+            ORDER BY mh.moved_at DESC
+            """;
+        List<MoveRecord> records = new ArrayList<>();
+
+        try (Connection conn = Database.connect();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                records.add(new MoveRecord(
+                        rs.getLong("id"),
+                        rs.getLong("session_id"),
+                        rs.getString("original_path"),
+                        rs.getString("new_path"),
+                        rs.getString("category"),
+                        rs.getString("moved_at"),
+                        rs.getString("status")
+                ));
+            }
+        }
+        return records;
+    }
+
     // UPDATE
     public void updateStatus(long id, String newStatus) throws SQLException {
         String sql = "UPDATE move_history SET status = ? WHERE id = ?";

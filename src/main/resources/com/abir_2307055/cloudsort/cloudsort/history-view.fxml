@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.abir_2307055.cloudsort.cloudsort.HistoryController">
+    <top>
+        <VBox spacing="10.0" alignment="CENTER">
+            <padding>
+                <Insets top="15.0" bottom="10.0"/>
+            </padding>
+            <Label text="Move History" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+        </VBox>
+    </top>
+
+    <center>
+        <TableView fx:id="historyTableView">
+            <columns>
+                <TableColumn fx:id="idColumn" text="ID" prefWidth="50.0"/>
+                <TableColumn fx:id="sessionIdColumn" text="Session" prefWidth="70.0"/>
+                <TableColumn fx:id="originalPathColumn" text="Original Path" prefWidth="250.0"/>
+                <TableColumn fx:id="newPathColumn" text="New Path" prefWidth="250.0"/>
+                <TableColumn fx:id="categoryColumn" text="Category" prefWidth="100.0"/>
+                <TableColumn fx:id="movedAtColumn" text="Moved At" prefWidth="160.0"/>
+                <TableColumn fx:id="statusColumn" text="Status" prefWidth="80.0"/>
+            </columns>
+            <BorderPane.margin>
+                <Insets left="15.0" right="15.0"/>
+            </BorderPane.margin>
+        </TableView>
+    </center>
+
+    <bottom>
+        <HBox spacing="10.0" alignment="CENTER">
+            <padding>
+                <Insets top="10.0" bottom="15.0"/>
+            </padding>
+            <Button text="Refresh" onAction="#onRefreshClicked"/>
+            <Button text="Clear History" onAction="#onClearHistoryClicked"/>
+        </HBox>
+    </bottom>
+</BorderPane>
