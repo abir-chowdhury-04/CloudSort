@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.abir_2307055.cloudsort.cloudsort.model.MoveRecord;
 
-public class MoveHistoryDAO {
+public class MoveHistoryDAO extends BaseDao  {
 
     // CREATE
     public long insertMove(long sessionId, String originalPath, String newPath, String category) throws SQLException {
@@ -88,12 +88,7 @@ public class MoveHistoryDAO {
     // UPDATE
     public void updateStatus(long id, String newStatus) throws SQLException {
         String sql = "UPDATE move_history SET status = ? WHERE id = ?";
-        try (Connection conn = Database.connect();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, newStatus);
-            ps.setLong(2, id);
-            ps.executeUpdate();
-        }
+        executeUpdate(sql, newStatus, id);
     }
 
     // DELETE

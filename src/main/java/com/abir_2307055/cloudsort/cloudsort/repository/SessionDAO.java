@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
-public class SessionDAO {
+public class SessionDAO extends BaseDao  {
 
     public long insertSession(String sourceFolder, String destinationFolder) throws SQLException {
         String sql = "INSERT INTO sessions(source_folder, destination_folder, started_at) VALUES(?, ?, ?)";
