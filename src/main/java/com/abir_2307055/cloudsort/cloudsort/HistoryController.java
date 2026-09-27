@@ -1,6 +1,7 @@
 package com.abir_2307055.cloudsort.cloudsort;
 
 import com.abir_2307055.cloudsort.cloudsort.model.MoveRecord;
+import com.abir_2307055.cloudsort.cloudsort.model.ScanSettings;
 import com.abir_2307055.cloudsort.cloudsort.repository.MoveHistoryDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,6 +11,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.TextInputDialog;
 
 import java.sql.SQLException;
 import java.util.Optional;
@@ -73,6 +75,26 @@ public class HistoryController {
 
     @FXML
     protected void onClearHistoryClicked() {
+        if (scanSettings != null && scanSettings.getConfirmationPassphrase() != null
+                && !scanSettings.getConfirmationPassphrase().isEmpty()) {
+
+            TextInputDialog passphraseDialog = new TextInputDialog();
+            passphraseDialog.setTitle("Passphrase Required");
+            passphraseDialog.setHeaderText(null);
+            passphraseDialog.setContentText("Enter the passphrase to clear history:");
+
+            Optional<String> enteredPassphrase = passphraseDialog.showAndWait();
+
+            if (enteredPassphrase.isEmpty() || !enteredPassphrase.get().equals(scanSettings.getConfirmationPassphrase())) {
+                Alert wrongPassAlert = new Alert(Alert.AlertType.ERROR);
+                wrongPassAlert.setTitle("Incorrect Passphrase");
+                wrongPassAlert.setHeaderText(null);
+                wrongPassAlert.setContentText("The passphrase was incorrect. History was not cleared.");
+                wrongPassAlert.showAndWait();
+                return;
+            }
+        }
+
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
                 "Delete all move history? This cannot be undone.",
                 ButtonType.YES, ButtonType.NO);
@@ -96,5 +118,11 @@ public class HistoryController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private ScanSettings scanSettings;
+
+    public void setScanSettings(ScanSettings settings) {
+        this.scanSettings = settings;
     }
 }

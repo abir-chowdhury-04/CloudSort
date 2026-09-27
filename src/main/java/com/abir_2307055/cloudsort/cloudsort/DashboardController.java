@@ -1,6 +1,7 @@
 package com.abir_2307055.cloudsort.cloudsort;
 
 import com.abir_2307055.cloudsort.cloudsort.model.FileItem;
+import com.abir_2307055.cloudsort.cloudsort.model.ScanSettings;
 import com.abir_2307055.cloudsort.cloudsort.service.Categorizer;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -78,6 +79,8 @@ public class DashboardController {
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
 
+    private final ScanSettings scanSettings = new ScanSettings();
+
     @FXML
     public void initialize() {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -85,6 +88,7 @@ public class DashboardController {
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
         reasonColumn.setCellValueFactory(new PropertyValueFactory<>("reason"));
         fileTableView.setItems(fileItems);
+        fileTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
     @FXML
@@ -227,6 +231,9 @@ public class DashboardController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("history-view.fxml"));
             Scene historyScene = new Scene(loader.load(), 700, 400);
+
+            HistoryController historyController = loader.getController();
+            historyController.setScanSettings(scanSettings);
 
             Stage historyStage = new Stage();
             historyStage.setTitle("Move History");
@@ -408,6 +415,28 @@ public class DashboardController {
         });
 
         executorService.submit(moveTask);
+    }
+
+    @FXML
+    protected void onSettingsClicked() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("settings-view.fxml"));
+            Scene settingsScene = new Scene(loader.load(), 450, 600);
+
+            SettingsController settingsController = loader.getController();
+            settingsController.setScanSettings(scanSettings);
+
+            Stage settingsStage = new Stage();
+            settingsStage.setTitle("Settings");
+            settingsStage.setScene(settingsScene);
+            settingsStage.show();
+        } catch (IOException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not open settings window: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     public void shutdownExecutor() {

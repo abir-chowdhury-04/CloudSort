@@ -25,6 +25,11 @@
                             <MenuItem text="Exit" onAction="#onExitClicked"/>
                         </items>
                     </Menu>
+                    <Menu text="Options">
+                        <items>
+                            <MenuItem text="Settings" onAction="#onSettingsClicked"/>
+                        </items>
+                    </Menu>
                 </menus>
             </MenuBar>
 
