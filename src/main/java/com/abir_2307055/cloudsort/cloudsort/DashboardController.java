@@ -2,6 +2,7 @@ package com.abir_2307055.cloudsort.cloudsort;
 
 import com.abir_2307055.cloudsort.cloudsort.model.FileItem;
 import com.abir_2307055.cloudsort.cloudsort.service.Categorizer;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -57,6 +58,11 @@ public class DashboardController {
 
     @FXML
     private Button organizeButton;
+
+    @FXML
+    protected void onExitClicked() {
+        Platform.exit();
+    }
 
     private File selectedFolder;
     private File destinationFolder;
