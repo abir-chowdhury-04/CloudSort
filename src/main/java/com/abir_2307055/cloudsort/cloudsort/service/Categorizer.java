@@ -11,7 +11,7 @@ public class Categorizer {
     }
 
     public static Categorizer withDefaultRules() {
-        return new Categorizer(new HardcodedRuleSource());
+        return new Categorizer(new JsonRuleSource());
     }
 
     public String getCategory(String extension) {
