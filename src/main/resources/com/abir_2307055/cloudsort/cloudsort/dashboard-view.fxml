@@ -12,6 +12,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.ProgressBar?>
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.abir_2307055.cloudsort.cloudsort.DashboardController">
 
@@ -53,6 +54,7 @@
                 <TableColumn fx:id="extensionColumn" text="Extension"/>
                 <TableColumn fx:id="categoryColumn" text="Category"/>
                 <TableColumn fx:id="reasonColumn" text="Reason"/>
+                <TableColumn fx:id="sizeColumn" text="Size"/>
             </columns>
             <BorderPane.margin>
                 <Insets left="15.0" right="15.0" top="10.0" bottom="10.0"/>
@@ -62,10 +64,14 @@
 
     <bottom>
         <VBox spacing="10.0" alignment="CENTER" style="-fx-background-color: #eaeaea; -fx-border-color: #cccccc; -fx-border-width: 1 0 0 0;">
+            <HBox alignment="CENTER_LEFT">
+                <Label fx:id="fileCountLabel" text="Files: 0" wrapText="true" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+            </HBox>
             <padding>
                 <Insets bottom="15.0" top="10.0" left="15.0" right="15.0"/>
             </padding>
             <Label fx:id="destinationLabel" text="Destination: same as source folder"/>
+            <ProgressBar fx:id="organizeProgressBar" progress="0" maxWidth="Infinity"/>
             <HBox spacing="10.0" alignment="CENTER">
                 <Button text="Select Destination Folder (optional)" onAction="#onSelectDestinationClicked"/>
                 <Button text="Reset Destination" onAction="#onResetDestinationClicked"/>

@@ -8,15 +8,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -29,6 +25,7 @@ import javafx.scene.Scene;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -61,6 +58,15 @@ public class DashboardController {
     private Button organizeButton;
 
     @FXML
+    private TableColumn<FileItem, String> sizeColumn;
+
+    @FXML
+    private ProgressBar organizeProgressBar;
+
+    @FXML
+    private Label fileCountLabel;
+
+    @FXML
     protected void onExitClicked() {
         Platform.exit();
     }
@@ -86,6 +92,7 @@ public class DashboardController {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         extensionColumn.setCellValueFactory(new PropertyValueFactory<>("extension"));
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
+        sizeColumn.setCellValueFactory(new PropertyValueFactory<>("formattedSize"));
         reasonColumn.setCellValueFactory(new PropertyValueFactory<>("reason"));
         fileTableView.setItems(fileItems);
         fileTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -103,6 +110,9 @@ public class DashboardController {
             selectedFolder = chosenDirectory;
             folderPathLabel.setText(selectedFolder.getAbsolutePath());
             organizeButton.setDisable(true);
+            fileItems.clear();
+            fileCountLabel.setText(buildFileCountText(fileItems));
+            //fileCountLabel.setText("Files: 0");
         }
     }
 
@@ -161,7 +171,8 @@ public class DashboardController {
                     String category = categorizer.getCategory(extension);
                     String reason = categorizer.getReason(extension);
 
-                    scannedItems.add(new FileItem(name, extension, category, reason));
+                    scannedItems.add(new FileItem(name, extension, category, reason, file.length()));
+                    fileCountLabel.setText(buildFileCountText(fileItems));
                 }
 
                 return scannedItems;
@@ -171,6 +182,8 @@ public class DashboardController {
         scanTask.setOnSucceeded(event -> {
             fileItems.setAll(scanTask.getValue());
             organizeButton.setDisable(fileItems.isEmpty());
+            fileCountLabel.setText(buildFileCountText(fileItems));
+            //fileCountLabel.setText("Files: " + fileItems.size());
             operationInProgress = false;
         });
 
@@ -318,6 +331,9 @@ public class DashboardController {
                 int successCount = 0;
                 int failureCount = 0;
 
+                int totalFiles = fileItems.size();
+                int processedFiles = 0;
+
                 long sessionId;
                 try {
                     sessionId = sessionDAO.insertSession(selectedFolder.getAbsolutePath(), targetRoot.getAbsolutePath());
@@ -388,6 +404,8 @@ public class DashboardController {
                             Thread.currentThread().interrupt();
                         }
                     }
+                    processedFiles++;
+                    updateProgress(processedFiles, totalFiles);
                 }
 
                 return new int[]{successCount, failureCount};
@@ -404,8 +422,12 @@ public class DashboardController {
             resultAlert.showAndWait();
 
             fileItems.clear();
+            fileCountLabel.setText(buildFileCountText(fileItems));
+            //fileCountLabel.setText("Files: 0");
             organizeButton.setDisable(true);
             operationInProgress = false;
+            organizeProgressBar.progressProperty().unbind();
+            organizeProgressBar.setProgress(0);
         });
 
         moveTask.setOnFailed(event -> {
@@ -413,6 +435,8 @@ public class DashboardController {
             folderPathLabel.setText("Organize failed: " + moveTask.getException().getMessage());
             operationInProgress = false;
         });
+
+        organizeProgressBar.progressProperty().bind(moveTask.progressProperty());
 
         executorService.submit(moveTask);
     }
@@ -441,5 +465,31 @@ public class DashboardController {
 
     public void shutdownExecutor() {
         executorService.shutdown();
+    }
+
+    private String buildFileCountText(ObservableList<FileItem> items) {
+        if (items.isEmpty()) {
+            return "Files: 0";
+        }
+
+        Map<String, Integer> countPerCategory = new TreeMap<>();
+        for (FileItem item : items) {
+            countPerCategory.merge(item.getCategory(), 1, Integer::sum);
+        }
+
+        StringBuilder text = new StringBuilder();
+        text.append("Files: ").append(items.size()).append(" (");
+
+        boolean first = true;
+        for (Map.Entry<String, Integer> entry : countPerCategory.entrySet()) {
+            if (!first) {
+                text.append(", ");
+            }
+            text.append(entry.getKey()).append(": ").append(entry.getValue());
+            first = false;
+        }
+        text.append(")");
+
+        return text.toString();
     }
 }
